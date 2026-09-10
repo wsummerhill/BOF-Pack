@@ -1,2 +1,8 @@
 # BOF-Pack
-Package of BOFs
+Package of BOFs by @wsummerhill
+
+
+
+
+
+[X/Twitter](@BSummerz)
