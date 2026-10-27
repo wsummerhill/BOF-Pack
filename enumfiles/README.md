@@ -1,5 +1,5 @@
 # BOF-enumfiles
-C++ implementation of a BOF to quickly enumerate local files of interest for post-exploitation. Useful to help find potential LOLbins, remoting software, browser or web server installations, etc.<br />
+C++ BOF implementation to quickly enumerate local files of interest for post-exploitation. Useful to help find potential LOLbins, remoting software, browser or web server installations, etc.<br />
 
 Kind of a dumb script, just meant to quickly automate enumeration for post-exploitation, and to learn C++ BOF dev using the newer Visual Studio [Cobalt Strike templates](https://github.com/Cobalt-Strike/bof-vs).<br />
 
