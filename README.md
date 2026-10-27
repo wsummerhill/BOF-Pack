@@ -3,7 +3,7 @@ BOF package by [@wsummerhill](https://github.com/wsummerhill)
 
 ## BOFs
 
-Each BOF contains its own README and an associated `.cna` script for Cobalt Strike.
+Each BOF contains its own README and an associated `.cna` script for Cobalt Strike, however they are compatible with other C2s.
 
 | Name | Command(s) | MITRE Tactic | Notes |
 | --- | --- | --- | --- |
